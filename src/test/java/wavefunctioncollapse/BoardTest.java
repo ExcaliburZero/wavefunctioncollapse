@@ -57,6 +57,38 @@ class BoardTest {
     }
 
     /**
+     * Attempting to actualize a tile in a board with no actualized tiles and
+     * only unsatisfiable tile configurations should raise a
+     * ContradictoryBoardStateException.
+     */
+    @Test
+    void actualizeNextTileContradiction() {
+        final int width = 10;
+        final int height = 10;
+        final int seed = 42;
+
+        final int n = 1;
+        final int m = 1;
+
+        final Tile[] tiles = new Tile[] {
+                new Tile(getDummyImage()),
+                new Tile(getDummyImage())
+        };
+
+        final TileConfiguration[] tileConfigurations = new TileConfiguration[] {
+                new TileConfiguration(0, (bp) -> false),
+                new TileConfiguration(1, (bp) -> false)
+        };
+
+        final WaveFunctionDefinition waveDefinition =
+                new WaveFunctionDefinition(n, m, tiles, tileConfigurations);
+
+        final Board board = new Board(width, height, waveDefinition, seed);
+
+        assertThrows(ContradictoryBoardStateException.class, board::actualizeNextTile);
+    }
+
+    /**
      * Attempting to actualize a tile in a fully actualized board should return
      * false to indicate that there are no tiles left to actualize.
      */

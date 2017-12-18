@@ -63,8 +63,6 @@ public class Board {
         int minNumStatesRemaining = numTiles;
         ArrayList<Point> minStateTiles = new ArrayList<>();
 
-        final int prevNumTilesActualized = getNumActualized();
-
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
                 // Count how many possible states the tile has
@@ -98,34 +96,36 @@ public class Board {
             final int i = minStateTile.row;
             final int j = minStateTile.column;
 
-            // Find what possible states the tile can actualize to
-            ArrayList<Integer> possibleStates = new ArrayList<>();
-            for (int k = 0; k < numTiles; k++) {
-                if (tileStates[i][j][k]) {
-                    possibleStates.add(k);
-                }
-            }
-
-            // Pick a random possible state to actualize the tile to
-            final int randomState = possibleStates.get(
-                    rand.nextInt(possibleStates.size())
-            );
-
-            // Actualize the tile to the chosen state
-            for (int k = 0; k < numTiles; k++) {
-                if (k != randomState) {
-                    tileStates[i][j][k] = false;
-                }
-            }
-
-            final int newNumTilesActualized = getNumActualized();
-            assert(newNumTilesActualized == prevNumTilesActualized + 1);
-
+            actualizeTile(i, j);
             propagate(i, j);
 
             return true;
         } else {
             return false;
+        }
+    }
+
+    private void actualizeTile(final int i, final int j) {
+        final int numTiles = tileStates[0][0].length;
+
+        // Find what possible states the tile can actualize to
+        ArrayList<Integer> possibleStates = new ArrayList<>();
+        for (int k = 0; k < numTiles; k++) {
+            if (tileStates[i][j][k]) {
+                possibleStates.add(k);
+            }
+        }
+
+        // Pick a random possible state to actualize the tile to
+        final int randomState = possibleStates.get(
+                rand.nextInt(possibleStates.size())
+        );
+
+        // Actualize the tile to the chosen state
+        for (int k = 0; k < numTiles; k++) {
+            if (k != randomState) {
+                tileStates[i][j][k] = false;
+            }
         }
     }
 
