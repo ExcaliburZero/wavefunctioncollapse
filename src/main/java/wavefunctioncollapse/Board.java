@@ -1,5 +1,6 @@
 package wavefunctioncollapse;
 
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.Random;
@@ -214,5 +215,38 @@ public class Board {
 
     public int getNumColumns() {
         return tileStates[0].length;
+    }
+
+    public BufferedImage getImage() {
+        final int width = tileStates.length;
+        final int height = tileStates[0].length;
+
+        // TODO(chris): Move this section to the waveDefinition and add validation in that constructor
+        final int tileWidth = waveDefinition.getTiles()[0].getBitMap().getWidth();
+        final int tileHeight = waveDefinition.getTiles()[0].getBitMap().getHeight();
+
+        final int imageWidth = tileWidth * width;
+        final int imageHeight = tileHeight * height;
+
+        BufferedImage image = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_RGB);
+
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
+                final Optional<Integer> state = getTileState(i, j);
+                final Optional<Tile> tile = state.map((Integer a) -> waveDefinition.getTiles()[a]);
+
+                final BufferedImage tileImage = tile.get().getBitMap();
+
+                if (tile.isPresent()) {
+                    for (int r = 0; r < tileWidth; r++) {
+                        for (int c = 0; c < tileHeight; c++) {
+                            image.setRGB(i * tileWidth + r, j * tileHeight + c, tileImage.getRGB(r, c));
+                        }
+                    }
+                }
+            }
+        }
+
+        return image;
     }
 }

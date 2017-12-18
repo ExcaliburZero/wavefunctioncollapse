@@ -15,7 +15,13 @@ class BoardTest {
      * @return A dummy BufferedImage.
      */
     private BufferedImage getDummyImage() {
-        return new BufferedImage(5, 5, BufferedImage.TYPE_INT_RGB);
+        final BufferedImage image = new BufferedImage(5, 5, BufferedImage.TYPE_INT_RGB);
+
+        image.setRGB(0, 0, 200);
+        image.setRGB(1, 2, 100);
+        image.setRGB(4, 3, 500);
+
+        return image;
     }
 
     /**
@@ -173,8 +179,7 @@ class BoardTest {
         };
 
         final TileConfiguration[] tileConfigurations = new TileConfiguration[] {
-                new TileConfiguration(0, (bp) -> true),
-                new TileConfiguration(1, (bp) -> true)
+                new TileConfiguration(0, (bp) -> true)
         };
 
         final WaveFunctionDefinition waveDefinition =
@@ -185,6 +190,51 @@ class BoardTest {
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
                 assertEquals(Optional.of(0), board.getTileState(i, j));
+            }
+        }
+    }
+
+    @Test
+    void getImageActualized() {
+        final int width = 4;
+        final int height = 4;
+        final int seed = 42;
+
+        final int n = 1;
+        final int m = 1;
+
+        final BufferedImage dummy = getDummyImage();
+        final Tile[] tiles = new Tile[] {
+                new Tile(dummy)
+        };
+
+        final TileConfiguration[] tileConfigurations = new TileConfiguration[] {
+                new TileConfiguration(0, (bp) -> true)
+        };
+
+        final WaveFunctionDefinition waveDefinition =
+                new WaveFunctionDefinition(n, m, tiles, tileConfigurations);
+
+        final Board board = new Board(width, height, waveDefinition, seed);
+
+        final BufferedImage image = board.getImage();
+
+        final int tileWidth = dummy.getWidth();
+        final int tileHeight = dummy.getHeight();
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
+
+                for (int k = 0; k < tileWidth; k++) {
+                    for (int l = 0; l < tileHeight; l++) {
+                        final int row = i * tileHeight + k;
+                        final int column = j * tileWidth + l;
+
+                        final int actual = image.getRGB(row, column);
+                        final int expected = dummy.getRGB(k, l);
+
+                        assertEquals(expected, actual);
+                    }
+                }
             }
         }
     }
